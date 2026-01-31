@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 
 function Table() {
     type User = {
@@ -40,6 +40,12 @@ function Table() {
 
     const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
     const [searchText, setSearchText] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+     useEffect(() => {
+        setCurrentPage(1)
+    }, [searchText])
+   
 
     const SortIcon = ({column}: {column: keyof User}) => {
         if(!sortConfig || sortConfig.key !== column) {
@@ -95,8 +101,9 @@ function Table() {
             });
             
         }
-        if (!sortConfig) return filterData;
-        return[...filterData].sort((a,b) => {
+        if (sortConfig){
+
+        filterData = [...filterData].sort((a,b) => {
             if (a[sortConfig.key] < b[sortConfig.key]) {
                 return sortConfig.direction === 'asc' ? -1 : 1
             }
@@ -105,6 +112,11 @@ function Table() {
             }
             return 0;
         })
+        }
+
+        const startIndex = currentPage * PAGE_SIZE;
+        const endIndex = startIndex + PAGE_SIZE;
+        return filterData.slice(startIndex, endIndex)
         
     }
     const TableRow = ({item}: {item: User[]}) => {
@@ -124,6 +136,17 @@ function Table() {
             </>
         )
     }
+
+    const PAGE_SIZE = 3
+    const totlaNumberOfPage = Math.ceil(users.length/PAGE_SIZE);
+    const startPage = currentPage * PAGE_SIZE;
+    const endPage = startPage+PAGE_SIZE;
+
+    const handlePageChange = (n: number) => {
+        setCurrentPage(n)
+    }
+
+    console.log(totlaNumberOfPage)
 
     return (
         <div className='bg-amber-50 w-full max-w-210 flex items-center justify-center pt-5 '>
@@ -147,6 +170,11 @@ function Table() {
                         <TableRow item={getSortedData()} />
                     </tbody>
                 </table>
+                <div className='pagination'>
+                    {[...Array(totlaNumberOfPage).keys()].map((n) => (
+                            <button className='p-1 m-1 text-2xl text-white border-1 cursor-pointer border-black' onClick={() => handlePageChange(n)} key={n}>{n+1}</button>
+                    ))}
+                </div>
             </div>
         </div>
     )
