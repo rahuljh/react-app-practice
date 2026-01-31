@@ -1,9 +1,11 @@
 import Home from "@/Page/Home/Home";
 import About from "@/Page/Home/About";
-import Table from  "@/Page/Table/index.js"
+import Table from  "@/Page/Table/index"
+import DynamicRouting from "@/Page/DynamicRouting/index"
 
 export const publicRoutes = [
   { path: "/", element: <Home /> },
   { path: "/about", element: <About /> },
-  { path: '/table', element: <Table />}
+  { path: '/table', element: <Table />},
+  { path: "/dynamic-routing", element: <DynamicRouting />}
 ];
