@@ -38,7 +38,8 @@ function Table() {
         {heading: 'Salary', key: 'salary'}
     ] ;
 
-    const [sortConfig, setSortConfig] = useState<SortConfig | null>(null)
+    const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+    const [searchText, setSearchText] = useState<string>('');
 
     const SortIcon = ({column}: {column: keyof User}) => {
         if(!sortConfig || sortConfig.key !== column) {
@@ -82,8 +83,20 @@ function Table() {
     }
 
     const getSortedData = () => {
-        if (!sortConfig) return users;
-        return[...users].sort((a,b) => {
+        
+        let filterData = users;
+        if (searchText !== '') {
+            let searchLowerCase = searchText.toLowerCase()
+            filterData = users.filter(item => {
+               return item.name.toLowerCase().includes(searchLowerCase) ||
+                       item.email.toLowerCase().includes(searchLowerCase) ||
+                       item.role.toLowerCase().includes(searchLowerCase) ||
+                       item.salary.toString().includes(searchText)
+            });
+            
+        }
+        if (!sortConfig) return filterData;
+        return[...filterData].sort((a,b) => {
             if (a[sortConfig.key] < b[sortConfig.key]) {
                 return sortConfig.direction === 'asc' ? -1 : 1
             }
@@ -92,6 +105,7 @@ function Table() {
             }
             return 0;
         })
+        
     }
     const TableRow = ({item}: {item: User[]}) => {
         return(
@@ -113,7 +127,18 @@ function Table() {
 
     return (
         <div className='bg-amber-50 w-full max-w-210 flex items-center justify-center pt-5 '>
-            <div className='flex bg-slate-800 rounded-xl'>
+            <div className='flex flex-col bg-slate-800 rounded-xl'>
+                <div className='flex flex-col p-4'>
+                    <div className='text-2xl text-white'>Data Table with Sorting and Search</div>
+                    <div className='bg-slate-700 '>
+                        <input
+                        className='w-full text-white'
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        
+                         />
+                    </div>
+                </div>
                 <table className='w-full max-w-210 text-sm rtl:text-right text-body border-collapse'>
                     <thead className='bg-neutral-secondary-medium '>
                         <tr className='text-white'>{column.map((item, index) => <TableHead item={item} key={index} />)}</tr>
